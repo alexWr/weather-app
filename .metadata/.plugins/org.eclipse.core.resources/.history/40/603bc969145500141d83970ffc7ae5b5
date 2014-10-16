@@ -67,7 +67,7 @@ public class Weather5 extends Activity implements OnClickListener{
 	                    response.getEntity().writeTo(out);
 	                    out.close();
 	                    responseString5 = out.toString();                    
-	                  //  parseData(responseString5);                    
+	                    parseData(responseString5);                    
 	                } else{
 	                    //Closes the connection.
 	                    response.getEntity().getContent().close();
