@@ -26,20 +26,25 @@ import com.example.openweathert.MainActivity.RequestTask;
 
 public class Weather5 extends Activity implements OnClickListener{
 	
-	EditText etCity1;
+	EditText etCity1,etDays;
 	Button btnSubmit;
 	TextView tvShWeather;
 	int Day_num,humid5,temp5;
 	String responseString5=null;	
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.days);        
+        setContentView(R.layout.days);
+        etDays=(EditText)findViewById(R.id.etDays);
         etCity1=(EditText)findViewById(R.id.etCity1);
         tvShWeather=(TextView)findViewById(R.id.tvShWeather);
         btnSubmit=(Button)findViewById(R.id.btnSubmit);
         btnSubmit.setOnClickListener(this);        
 	}
-	 public void onClick(View v) {				
+	 public void onClick(View v) {		
+		if(Integer.parseInt(etDays.getText().toString())>16){
+			 Day_num=5;
+		}
+		else Day_num=Integer.parseInt(etDays.getText().toString());
 		switch(v.getId()){
  			case R.id.btnSubmit:
  				tvShWeather.setText("City: "+etCity1.getText().toString()+"\n");
