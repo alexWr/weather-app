@@ -23,13 +23,14 @@
 		android:text="Show weatheк for 5 days" 
 		android:id="@+id/btnSend2"/> 
 	<TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"        
+        android:layout_gravity="center" 
         android:id="@+id/tvTemp"/>
 	<TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"        
+        android:layout_gravity="center"
+        android:layout_marginTop="1dp" 
         android:id="@+id/tvWeather"/>
 </LinearLayout>
