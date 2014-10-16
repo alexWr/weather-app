@@ -1,0 +1,6 @@
+INDEX VERSION 1.126+/home/hotyun_a/projects/weather-app/.metadata/.plugins/org.eclipse.jdt.core
+912797448.index
+1586393409.index
+2637898883.index
+91297984.index
+1270315800.index

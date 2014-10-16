@@ -1,0 +1,31 @@
+package com.example.openweathert;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
+public class Weather5 extends Activity implements OnClickListener{
+	
+	EditText etCity1;
+	Button btnSubmit;
+	TextView tvShWeather;
+	protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.days);
+        etCity1=(EditText)findViewById(R.id.etCity1);
+        tvShWeather=(TextView)findViewById(R.id.tvWeather);
+        btnSend=(Button)findViewById(R.id.btnSend);
+        btnSend.setOnClickListener(this);
+        btnSend2=(Button)findViewById(R.id.btnSend2);
+        btnSend2.setOnClickListener(this);
+	}
+	 public void onClick(View v) {
+		switch(v.getId()){
+ 			case R.id.btnSend:
+		}
+	 }
+}

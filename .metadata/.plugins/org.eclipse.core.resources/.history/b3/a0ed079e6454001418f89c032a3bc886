@@ -1,0 +1,91 @@
+package com.example.openweather;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import org.apache.commons.logging.Log;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+import android.app.Activity;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+
+public class MainActivity extends Activity implements OnClickListener {
+	EditText etCity;
+	Button btnSend;
+	TextView tvWeather;
+	String city;
+	
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
+        etCity=(EditText)findViewById(R.layout.etCity);
+        tvWeather=(TextView)findViewById(R.layout.tvTextView);
+        btnSend=(Button)findViewById(R.layout.btnSend);
+        btnSend=setOnClickListener(this);
+    }
+
+
+    @Override
+    
+    public void onClick(View v) {
+    	if(etCity.getText().toString()==""){
+    		 Toast.makeText(MainActivity.class, "Plese enter the city", Toast.LENGTH_SHORT).show();
+    	}
+    	switch(v.getId()){
+    		case R.id.btnSend:
+    			new RequestTask().execute("api.openweathermap.org/data/2.5/weather?q="+etCity.getText().toString()+",uk");
+    			
+    	} 
+        
+      }
+    class RequestTask extends AsyncTask<String, String, String>{
+
+        @Override
+        protected String doInBackground(String... uri) {
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpResponse response;
+            String responseString = null;
+            try {
+                response = httpclient.execute(new HttpGet(uri[0]));
+                StatusLine statusLine = response.getStatusLine();
+                if(statusLine.getStatusCode() == HttpStatus.SC_OK){
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    response.getEntity().writeTo(out);
+                    out.close();
+                    responseString = out.toString();
+                    Log.d("MyLogs",responseString);
+                } else{
+                    //Closes the connection.
+                    response.getEntity().getContent().close();
+                    throw new IOException(statusLine.getReasonPhrase());
+                }
+            } catch (ClientProtocolException e) {
+                //TODO Handle problems..
+            } catch (IOException e) {
+                //TODO Handle problems..
+            }
+            return responseString;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            //Do anything with response..
+        }
+    }
+}

@@ -1,0 +1,98 @@
+package com.example.openweathert;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.app.Activity;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import com.example.openweathert.MainActivity.RequestTask;
+
+public class Weather5 extends Activity implements OnClickListener{
+	
+	EditText etCity1,etDays;
+	Button btnSubmit;
+	TextView tvShWeather;
+	int Day_num,humid5,temp5;
+	String responseString5=null;	
+	protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.days);
+        etDays=(EditText)findViewById(R.id.etDays);
+        etCity1=(EditText)findViewById(R.id.etCity1);
+        tvShWeather=(TextView)findViewById(R.id.tvShWeather);
+        btnSubmit=(Button)findViewById(R.id.btnSubmit);
+        btnSubmit.setOnClickListener(this);        
+	}
+	 public void onClick(View v) {		
+		if(Integer.parseInt(etDays.getText().toString())>16){
+			 Day_num=5;
+		}
+		else Day_num=Integer.parseInt(etDays.getText().toString());
+		switch(v.getId()){
+ 			case R.id.btnSubmit:
+ 				tvShWeather.setText("City: "+etCity1.getText().toString()+"\n");
+ 				new RequestTask5().execute("http://api.openweathermap.org/data/2.5/forecast/daily?q="+
+ 				etCity1.getText().toString()+"&mode=json&units=metric&cnt="+Day_num);
+ 				break;
+		}
+	 }
+	 class RequestTask5 extends AsyncTask<String, String, String>{
+
+	        @Override
+	        protected String doInBackground(String... uri) {
+	            HttpClient httpclient = new DefaultHttpClient();
+	            HttpResponse response;            
+	            try {
+	                response = httpclient.execute(new HttpGet(uri[0]));
+	                StatusLine statusLine = response.getStatusLine();
+	                if(statusLine.getStatusCode() == HttpStatus.SC_OK){
+	                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+	                    response.getEntity().writeTo(out);
+	                    out.close();
+	                    responseString5 = out.toString();                    
+	                    parseData(responseString5);                    
+	                } else{
+	                    //Closes the connection.
+	                    response.getEntity().getContent().close();
+	                    throw new IOException(statusLine.getReasonPhrase());
+	                }
+	            } 
+	            catch (Exception e) {               
+	            }
+	            return responseString5;
+	        }
+	        @Override
+	        protected void onPostExecute(String result) {
+	            super.onPostExecute(result);            
+	            tvShWeather.setText("City: "+city+"\n"+"humidity: "+humid+"%\n"+ "temperature: "+temp+"^C");
+	        }
+	    }
+	        void parseData(String data) throws JSONException {    	        
+	        	JSONObject json_array=new JSONObject(data);    
+	        	for(int i=0; i<json_array.length();i++){    		
+	        		city=json_array.getString("name");
+	        		JSONObject newJson=json_array.getJSONObject("main");
+	        		temp=newJson.getInt("temp")-272;
+	        		humid=newJson.getInt("humidity");	    			    			            		                                   
+	        		Log.d("myLogs","Text: "+ city+temp+humid);
+	        		
+	        	}	    		    
+	        }    			
+}
