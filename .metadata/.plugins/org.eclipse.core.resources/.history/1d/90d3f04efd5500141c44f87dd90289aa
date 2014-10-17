@@ -1,0 +1,33 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.openweathert.MainActivity" >
+
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="1"
+        android:title="@string/action_settings"
+        android:icon="@drawable/ic_action_edit"
+        app:showAsAction="always">
+     	<menu>
+        	<item 
+        		android:id="@+id/action_enter"
+        		android:orderInCategory="2"          
+        		android:title="@string/action_enter"
+        		android:icon="@drawable/ic_action_camera"
+        		android:showAsAction="ifRoom"/>                    
+    		<item 
+        		android:id="@+id/action_show_weather"
+        		android:orderInCategory="3"          
+        		android:title="@string/action_show_weather"
+        		android:icon="@drawable/ic_action_directions"
+        		android:showAsAction="ifRoom"/>        
+    		<item
+        		android:id="@+id/action_check_updates"
+        		android:orderInCategory="4"          
+        		android:title="@string/action_show_weather5"
+        		android:icon="@drawable/ic_action_download"
+        		android:showAsAction="ifRoom" />   
+    	</menu>>
+  	</item>>             
+</menu>

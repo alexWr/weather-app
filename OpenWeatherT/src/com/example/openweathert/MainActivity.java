@@ -19,22 +19,16 @@ import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
-public class MainActivity extends ActionBarActivity implements OnClickListener {	
+public class MainActivity extends ActionBarActivity {	
 	String responseGeo=null;
 	double lon,lat;
-	EditText etCity;
-	Button btnSend,btnSend2,btnGeo;
+	EditText etCity;	
 	TextView tvWeather,tvTemp,tvDay1,tvDay2,tvDay3,tvDay4;
 	String city,responseString=null,responseString5=null,citySave;
 	int humid,temp;
@@ -52,58 +46,41 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
         tvDay2=(TextView)findViewById(R.id.tvDay2);
         tvDay3=(TextView)findViewById(R.id.tvDay3);
         tvDay4=(TextView)findViewById(R.id.tvDay4);
-        tvTemp=(TextView)findViewById(R.id.tvTemp);
-        btnSend=(Button)findViewById(R.id.btnSend);
-        btnSend.setOnClickListener(this);
-        btnGeo=(Button)findViewById(R.id.btnGeo);
-        btnGeo.setOnClickListener(this);        
-        btnSend2=(Button)findViewById(R.id.btnSend2);
-        btnSend2.setOnClickListener(this);           
+        tvTemp=(TextView)findViewById(R.id.tvTemp);                       
     }
     @Override
    
     public boolean onCreateOptionsMenu(Menu menu) {
     	MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main, menu);
-        return true;
+        inflater.inflate(R.menu.activity_main_action, menu);
+        return super.onCreateOptionsMenu(menu);
     }
     @Override
    public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
+        switch(item.getItemId()){
+        case R.id.action_settings:         	
             return true;
+        case R.id.action_enter:
+        	return true;
+        case R.id.action_show_weather:
+        	saveCity();
+			new RequestTask().execute("http://api.openweathermap.org/data/2.5/weather?q="+etCity.getText().toString());
+        	return true;
+        case R.id.action_show_weather5:
+        	new RequestTask5().execute("http://api.openweathermap.org/data/2.5/forecast/daily?q="+
+        	etCity.getText().toString()+"&mode=json&units=metric&cnt=5");
+        	return true;
+        case R.id.action_geo:
+        	new RequestTaskGeo().execute("http://api.openweathermap.org/data/2.5/forecast/daily?lat="+
+        	lat+"&lon="+lon+"&cnt=5&mode=json");
+        	return true;
         }
+        
         return super.onOptionsItemSelected(item);
-    }
-    public void onClick(View v) {
-    	if(etCity.getText().toString()==""){
-    		 Toast.makeText(MainActivity.this, "Plese enter the city", Toast.LENGTH_SHORT).show();
-    	}
-    	switch(v.getId()){
-    		case R.id.btnGeo:
-    			if(gps.canGetLocation()){
-    				lon=gps.getLongitude();
-    				lat=gps.getLatitude();
-    			}    				
-    			else gps.showSettingsAlert();
-    			Log.d("myLogs",gps.latitude+" "+gps.longitude);
-    			new RequestTaskGeo().execute("http://api.openweathermap.org/data/2.5/forecast/daily?lat="+
-    			lat+"&lon="+lon+"&cnt=5&mode=json");
-    			//GeoLocation.getLatitude() GeoLocation.getLongitude()
-    			break;
-    		case R.id.btnSend:
-    			saveCity();
-    			new RequestTask().execute("http://api.openweathermap.org/data/2.5/weather?q="+etCity.getText().toString());
-    			break;
-    		case R.id.btnSend2:
-    			new RequestTask5().execute("http://api.openweathermap.org/data/2.5/forecast/daily?q="+
-    			etCity.getText().toString()+"&mode=json&units=metric&cnt=5");
-    			break;
-    	} 
-    }
+    }    
     void saveCity() {
         sPref = getPreferences(MODE_PRIVATE);
         Editor ed = sPref.edit();
