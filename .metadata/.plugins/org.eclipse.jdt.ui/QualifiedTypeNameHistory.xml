@@ -4,7 +4,12 @@
 <fullyQualifiedTypeName name="com.example.openweather.R.id"/>
 <fullyQualifiedTypeName name="android.R.string"/>
 <fullyQualifiedTypeName name="org.apache.commons.logging.Log"/>
-<fullyQualifiedTypeName name="android.view.View.OnClickListener"/>
 <fullyQualifiedTypeName name="android.R"/>
+<fullyQualifiedTypeName name="com.example.openweathert.R.id"/>
+<fullyQualifiedTypeName name="android.view.View.OnClickListener"/>
+<fullyQualifiedTypeName name="java.sql.Date"/>
+<fullyQualifiedTypeName name="java.util.Date"/>
+<fullyQualifiedTypeName name="android.app.FragmentManager"/>
+<fullyQualifiedTypeName name="android.provider.Settings"/>
 <fullyQualifiedTypeName name="android.util.Log"/>
 </qualifiedTypeNameHistroy>

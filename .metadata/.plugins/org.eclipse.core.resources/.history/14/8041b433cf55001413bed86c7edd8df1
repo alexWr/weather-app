@@ -1,0 +1,29 @@
+package com.example.openweathert;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import com.achep.header2actionbar.HeaderFragment;
+
+public class TestHeaderFragment extends HeaderFragment {
+
+	@Override
+	public View onCreateContentOverlayView(LayoutInflater arg0, ViewGroup arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public View onCreateContentView(LayoutInflater arg0, ViewGroup arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public View onCreateHeaderView(LayoutInflater arg0, ViewGroup arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

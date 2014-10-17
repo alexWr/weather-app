@@ -1,0 +1,50 @@
+package com.example.openweathert;
+
+import android.app.Activity;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import com.achep.header2actionbar.HeaderFragment;
+
+public class TestHeaderFragment extends HeaderFragment {
+
+	@Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        // Меняем прозрачность ActionBar'a во время скроллинга
+        setOnHeaderScrollChangeListener(new OnHeaderScrollChangeListener() {
+            @Override
+            public void onHeaderScrollChanged(float progress, int height, int scroll) {
+                height -= getActivity().getActionBar().getHeight();
+                progress = (float) scroll / height;
+                if (progress > 1f) progress = 1f;
+                ((FadingActionBarActivity) getActivity()).setActionBarAlpha((int) (255 * progress));
+            }
+        });
+    }
+
+    @Override
+    public int getHeaderResource() {
+        return R.layout.header;
+    }
+
+    @Override
+    public void onPrepareHeaderView(View view) {
+        super.onPrepareHeaderView(view);
+        // Заполняем view контентом
+    }
+
+    @Override
+    public int getContentResource() {
+        return R.layout.content;
+    }
+
+    @Override
+    public void onPrepareContentListView(ListView listView) {
+        super.onPrepareContentListView(listView);
+        // Заполняем view контентом
+        setListViewAdapter(listView, new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, android.R.id.title, new String[]{"Android", "Android", "Android", "Android", "Android", "Android", "Android", "Android", "Android", "Android", "Android"}));
+
+}

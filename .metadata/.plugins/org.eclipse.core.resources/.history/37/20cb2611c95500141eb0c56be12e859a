@@ -1,0 +1,59 @@
+package com.example.openweathert;
+
+import java.util.Date;
+
+import android.app.Service;
+import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.view.View;
+
+public class GPSTracker extends Service implements LocationListener  {
+	 private LocationManager locationManager;
+	  StringBuilder sbGPS = new StringBuilder();
+	  StringBuilder sbNet = new StringBuilder();
+	
+	@Override
+    public void onLocationChanged(Location location) {      
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {      
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {            
+    }         
+
+  private String formatLocation(Location location) {
+    if (location == null)
+      return "";
+    return String.format(
+        "Coordinates: lat = %1$.4f, lon = %2$.4f, time = %3$tF %3$tT",
+        location.getLatitude(), location.getLongitude(), new Date(
+            location.getTime()));
+  }
+
+  
+
+  public void onClickLocationSettings(View view) {
+    startActivity(new Intent(
+        android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+  }
+
+@Override
+public void onStatusChanged(String provider, int status, Bundle extras) {
+	// TODO Auto-generated method stub
+	
+}
+
+@Override
+public IBinder onBind(Intent intent) {
+	// TODO Auto-generated method stub
+	return null;
+};
+
+}
