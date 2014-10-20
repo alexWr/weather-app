@@ -14,45 +14,86 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.ProgressDialog;
+import android.app.SearchManager;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.EditText;
+import android.view.View;
 import android.widget.TextView;
 
 public class MainActivity extends ActionBarActivity {	
 	String responseGeo=null;
-	double lon,lat;
-	EditText etCity;	
+	SearchView svCity;
+	MenuItem searchItem;
+	String name; 
+	SearchManager searchManager;
+	double lon,lat;	
 	TextView tvWeather,tvTemp,tvDay1,tvDay2,tvDay3,tvDay4;
 	String city,responseString=null,responseString5=null,citySave;
 	int humid,temp;
 	SharedPreferences sPref;	
 	ArrayList<Integer> humid5=new ArrayList<Integer>();
 	ArrayList<Integer> temp5=new ArrayList<Integer>();
-	GPSTracker gps=new GPSTracker(this);
+	GPSTracker gps;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);        
-        etCity=(EditText)findViewById(R.id.etCity);
+        setContentView(R.layout.main);               
         tvWeather=(TextView)findViewById(R.id.tvWeather);
         tvDay1=(TextView)findViewById(R.id.tvDay1);
         tvDay2=(TextView)findViewById(R.id.tvDay2);
         tvDay3=(TextView)findViewById(R.id.tvDay3);
         tvDay4=(TextView)findViewById(R.id.tvDay4);
-        tvTemp=(TextView)findViewById(R.id.tvTemp);                       
+        tvTemp=(TextView)findViewById(R.id.tvTemp);
+        loadCity();
+        gps=new GPSTracker(this);
     }
     @Override
    
     public boolean onCreateOptionsMenu(Menu menu) {
     	MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.activity_main_action, menu);
+        searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        searchItem = menu.findItem(R.id.action_search);        
+        svCity=(SearchView)MenuItemCompat.getActionView(searchItem);        
+        if (null != svCity) {        	
+        	svCity.setSearchableInfo(searchManager
+                    .getSearchableInfo(getComponentName()));
+        	svCity.setIconifiedByDefault(false);
+        }
+        svCity.onActionViewCollapsed();
+        svCity.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean queryTextFocused) {
+                if(!queryTextFocused) {
+                	svCity.onActionViewCollapsed();                    
+                }
+            }
+        });
+        SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
+            public boolean onQueryTextChange(String newText) {
+                name=newText;                              
+                return false;
+            }
+            public boolean onQueryTextSubmit(String query) {
+            	 name=query;
+            	 svCity.onActionViewCollapsed();
+            	 saveCity();
+            	return false;
+            }            
+        };
+        svCity.setOnQueryTextListener(queryTextListener);
         return super.onCreateOptionsMenu(menu);
     }
     @Override
@@ -61,39 +102,49 @@ public class MainActivity extends ActionBarActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         switch(item.getItemId()){
-        case R.id.action_settings:         	
-            return true;
-        case R.id.action_enter:
-        	return true;
-        case R.id.action_show_weather:
-        	saveCity();
-			new RequestTask().execute("http://api.openweathermap.org/data/2.5/weather?q="+etCity.getText().toString());
-        	return true;
-        case R.id.action_show_weather5:
-        	new RequestTask5().execute("http://api.openweathermap.org/data/2.5/forecast/daily?q="+
-        	etCity.getText().toString()+"&mode=json&units=metric&cnt=5");
-        	return true;
-        case R.id.action_geo:
-        	new RequestTaskGeo().execute("http://api.openweathermap.org/data/2.5/forecast/daily?lat="+
-        	lat+"&lon="+lon+"&cnt=5&mode=json");
-        	return true;
+        	case R.id.action_search:        	
+        		return true;
+        	case R.id.action_settings:         	
+        		return true;        
+        	case R.id.action_show_weather:
+        		saveCity();
+        		new RequestTask().execute("http://api.openweathermap.org/data/2.5/weather?q="+name);
+        		return true;
+        	case R.id.action_show_weather5:
+        		new RequestTask5().execute("http://api.openweathermap.org/data/2.5/forecast/daily?q="+
+        		name+"&mode=json&units=metric&cnt=5");
+        		return true;
+        	case R.id.action_geo:
+        		if(gps.canGetLocation()){                
+                    lat=gps.getLatitude();
+                    lon=gps.getLongitude();
+            	}
+            	new RequestTaskGeo().execute("http://api.openweathermap.org/data/2.5/forecast/daily?lat="+
+            	lat+"&lon="+lon+"&cnt=5&mode=json");
+            	Log.d("myLogs",lat+" "+lon);
+            	return true;
         }
         
         return super.onOptionsItemSelected(item);
     }    
     void saveCity() {
-        sPref = getPreferences(MODE_PRIVATE);
+    	sPref = getPreferences(MODE_PRIVATE);
         Editor ed = sPref.edit();
-        ed.putString(citySave, etCity.getText().toString());
-        ed.commit();        
+        ed.putString(citySave, name);
+        ed.commit();         
       }
     void loadCity() {
-        sPref = getPreferences(MODE_PRIVATE);
-        String savedText = sPref.getString(citySave, "");
-        etCity.setText(savedText);        
+    	sPref = getPreferences(MODE_PRIVATE);
+        name = sPref.getString(citySave, "");
+        new RequestTask().execute("http://api.openweathermap.org/data/2.5/weather?q="+name);
       }
     class RequestTask extends AsyncTask<String, String, String>{
-
+    	ProgressDialog progressDialog;
+	    @Override
+	    protected void onPreExecute()
+	    {
+	        progressDialog= ProgressDialog.show(MainActivity.this, "Download","Getting data", true);    	                         	        
+	    };      
         @Override
         protected String doInBackground(String... uri) {
             HttpClient httpclient = new DefaultHttpClient();
@@ -122,14 +173,20 @@ public class MainActivity extends ActionBarActivity {
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
             tvTemp.setTextSize(35);
-            tvTemp.setText(temp+"^C\n");
+            tvTemp.setText(temp+"°C\n");
             tvWeather.setTextSize(10);
             tvWeather.setText(humid+"%\n"+city);
+            progressDialog.dismiss();
         }
     }
     
     class RequestTask5 extends AsyncTask<String, String, String>{
-
+    	ProgressDialog progressDialog;
+	    @Override
+	    protected void onPreExecute()
+	    {
+	        progressDialog= ProgressDialog.show(MainActivity.this, "Download","Getting data", true);    	                         	        
+	    };      
         @Override
         protected String doInBackground(String... uri) {
             HttpClient httpclient = new DefaultHttpClient();
@@ -157,22 +214,27 @@ public class MainActivity extends ActionBarActivity {
         protected void onPostExecute(String result) {
             super.onPostExecute(result);            
             tvTemp.setTextSize(35);
-            tvTemp.setText(temp5.get(0)+"^C\n");
+            tvTemp.setText(temp5.get(0)+"°C\n");
             tvWeather.setTextSize(10);
             tvWeather.setText(humid5.get(0)+"%\n"+city);
             tvDay1.setTextSize(10);
             tvDay2.setTextSize(10);
             tvDay3.setTextSize(10);
             tvDay4.setTextSize(10);
-            tvDay1.setText(temp5.get(1)+"^C\n"+humid5.get(1)+"%");
-            tvDay2.setText(temp5.get(2)+"^C\n"+humid5.get(2)+"%");
-            tvDay3.setText(temp5.get(3)+"^C\n"+humid5.get(3)+"%");
-            tvDay4.setText(temp5.get(4)+"^C\n"+humid5.get(4)+"%");
-            
+            tvDay1.setText(temp5.get(1)+"°C\n"+humid5.get(1)+"%");
+            tvDay2.setText(temp5.get(2)+"°C\n"+humid5.get(2)+"%");
+            tvDay3.setText(temp5.get(3)+"°C\n"+humid5.get(3)+"%");
+            tvDay4.setText(temp5.get(4)+"°C\n"+humid5.get(4)+"%");
+            progressDialog.dismiss();
         }
     }
     class RequestTaskGeo extends AsyncTask<String, String, String>{
-
+    	ProgressDialog progressDialog;
+	    @Override
+	    protected void onPreExecute()
+	    {
+	        progressDialog= ProgressDialog.show(MainActivity.this, "Download","Getting data", true);    	                         	        
+	    };      
         @Override
         protected String doInBackground(String... uri) {
             HttpClient httpclient = new DefaultHttpClient();
@@ -200,17 +262,18 @@ public class MainActivity extends ActionBarActivity {
         protected void onPostExecute(String result) {
             super.onPostExecute(result);            
             tvTemp.setTextSize(35);
-            tvTemp.setText(temp5.get(0)+"^C\n");
+            tvTemp.setText(temp5.get(0)+"°C\n");
             tvWeather.setTextSize(10);
             tvWeather.setText(humid5.get(0)+"%\n"+city);
             tvDay1.setTextSize(10);
             tvDay2.setTextSize(10);
             tvDay3.setTextSize(10);
             tvDay4.setTextSize(10);
-            tvDay1.setText(temp5.get(1)+"^C\n"+humid5.get(1)+"%");
-            tvDay2.setText(temp5.get(2)+"^C\n"+humid5.get(2)+"%");
-            tvDay3.setText(temp5.get(3)+"^C\n"+humid5.get(3)+"%");
-            tvDay4.setText(temp5.get(4)+"^C\n"+humid5.get(4)+"%");
+            tvDay1.setText(temp5.get(1)+"°C\n"+humid5.get(1)+"%");
+            tvDay2.setText(temp5.get(2)+"°C\n"+humid5.get(2)+"%");
+            tvDay3.setText(temp5.get(3)+"°C\n"+humid5.get(3)+"%");
+            tvDay4.setText(temp5.get(4)+"°C\n"+humid5.get(4)+"%");
+            progressDialog.dismiss();
         }
     }
     void parseData(String data) throws JSONException {    	        
@@ -249,6 +312,11 @@ public class MainActivity extends ActionBarActivity {
         		humid5.add(newJson.getInt("humidity"));
     		}    		   			    			    			            		                                       		    		
     	}	    		    
-    }    
+    }
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data == null) {return;}
+        name = data.getStringExtra("name");
+        new RequestTask().execute("http://api.openweathermap.org/data/2.5/weather?q="+name);
+      }
 }
 

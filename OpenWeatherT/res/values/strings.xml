@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>	
-    <string name="app_name">OpenWeatherT</string>
-    <string name="hello_world">Hello world!</string>
+<resources>
+    	
+    <string name="app_name">OpenWeatherT</string>   
     <string name="action_settings">Setting</string>
     <string name="action_enter">Enter city</string>
     <string name="action_show_weather">Show weather</string>
@@ -10,4 +10,6 @@
 	<string name="provider_gps">GPS</string>
 	<string name="provider_network">Network</string>
 	<string name="location_settings">Location settings</string>
+	<string name="action_search">Search</string>
+	
 </resources>
